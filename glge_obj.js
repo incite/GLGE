@@ -79,7 +79,7 @@ GLGE.ObjFile.prototype.splitBits = function(line) {
 
     bits = line.split(' ');
     bits.shift();
-    bits.map(function(x) { return parseFloat(x) });
+    bits = bits.map(function(x) { return parseFloat(x) });
     console.log(bits);
     return bits;
 

@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  /**
  * @fileOverview
- * @name glge_collada.js
+ * @name glge_obj.js
  * @author me@geraldkaszuba.com
  */
 
@@ -38,9 +38,12 @@ if (!GLGE) {
 
 (function(GLGE) {
 
-GLGE.ObjFile = function(url) {
+GLGE.ObjFile = function(url, scene, obj) {
 
     this.verts = [];
+    this.faces = [];
+    this.scene = scene;
+    this.object = obj;
     this.mesh = new GLGE.Mesh();
     this.load(url);
 
@@ -48,14 +51,11 @@ GLGE.ObjFile = function(url) {
 
 GLGE.ObjFile.prototype.load = function(url) {
 
-    var t = this;
+    var instance = this;
 
     $.get(url, function(data) {
 
-        console.log(t);
-
         lines = data.split('\n');
-        console.log(lines);
 
         $.each(lines, function(idx, line) {
 
@@ -63,13 +63,20 @@ GLGE.ObjFile.prototype.load = function(url) {
             switch(prefix) {
                 case 'g': break;
                 case 'v':
-                    t.verts.push(t.splitBits(line));
+                    instance.verts += instance.splitBits(line);
                     break;
-                case 'f': break;
+                case 'f':
+                    instance.faces += instance.splitBits(line);
+                    break;
                 default: break;
             }
 
         });
+
+        instance.mesh.setPositions(instance.verts);
+        instance.mesh.setFaces(instance.faces);
+        instance.object.setMesh(instance.mesh);
+        instance.scene.addObject(instance.object);
 
     });
 
@@ -80,7 +87,6 @@ GLGE.ObjFile.prototype.splitBits = function(line) {
     bits = line.split(' ');
     bits.shift();
     bits = bits.map(function(x) { return parseFloat(x) });
-    console.log(bits);
     return bits;
 
 }
